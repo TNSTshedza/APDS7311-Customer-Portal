@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 import '../styles/LoginForm.css';
 
-const LoginForm = ({ onLoginSuccess, switchToRegister }) => { // Add switchToRegister as a prop
+const LoginForm = ({ onLoginSuccess, switchToRegister }) => {
   const [formData, setFormData] = useState({ username: '', password: '' });
-  const [message, setMessage] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -12,11 +12,23 @@ const LoginForm = ({ onLoginSuccess, switchToRegister }) => { // Add switchToReg
       const response = await axios.post('http://localhost:5000/login', formData);
 
       if (response.status === 200) {
-        setMessage('Login successful!');
+        Swal.fire({
+          icon: 'success',
+          title: 'Login Successful',
+          text: 'You have successfully logged in!',
+          timer: 2000,
+          timerProgressBar: true,
+          showConfirmButton: false,
+        });
         onLoginSuccess(); // Notify App.js that login was successful
       }
     } catch (error) {
-      setMessage('Login failed. Please check your username and password.');
+      Swal.fire({
+        icon: 'error',
+        title: 'Login Failed',
+        text: 'Please check your username and password.',
+        confirmButtonText: 'Try Again',
+      });
     }
   };
 
@@ -42,11 +54,9 @@ const LoginForm = ({ onLoginSuccess, switchToRegister }) => { // Add switchToReg
           <a href="#">Forgot password?</a>
           <input type="submit" className="button" value="Login" />
         </form>
-        <p>{message}</p>
         <div className="signup">
           <span className="signup">
             Don't have an account?{' '}
-            {/* Call switchToRegister on click */}
             <label style={{ cursor: 'pointer' }} onClick={switchToRegister}>
               Signup
             </label>

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 import '../styles/RegisterForm.css';
 
 const RegisterForm = ({ switchToLogin }) => {
   const [formData, setFormData] = useState({ username: '', password: '' });
-  const [message, setMessage] = useState('');
 
   // Client-side validation rules
   const usernameRegex = /^[a-zA-Z0-9]+$/;
@@ -12,11 +12,19 @@ const RegisterForm = ({ switchToLogin }) => {
 
   const validateForm = () => {
     if (!usernameRegex.test(formData.username)) {
-      setMessage('Username can only contain alphanumeric characters.');
+      Swal.fire({
+        icon: 'error',
+        title: 'Invalid Username',
+        text: 'Username can only contain alphanumeric characters.',
+      });
       return false;
     }
     if (!passwordRegex.test(formData.password)) {
-      setMessage('Password must be at least 8 characters long, contain uppercase, number, and special character.');
+      Swal.fire({
+        icon: 'error',
+        title: 'Invalid Password',
+        text: 'Password must be at least 8 characters long, contain uppercase, number, and special character.',
+      });
       return false;
     }
     return true;
@@ -29,13 +37,28 @@ const RegisterForm = ({ switchToLogin }) => {
     try {
       const response = await axios.post('http://localhost:5000/register', formData);
       if (response.status === 201) {
-        setMessage('Registration successful! You can now log in.');
-        setTimeout(switchToLogin, 2000); // Automatically switch to login after success
+        Swal.fire({
+          icon: 'success',
+          title: 'Registration Successful',
+          text: 'You can now log in.',
+          timer: 2000,
+          timerProgressBar: true,
+        }).then(() => {
+          switchToLogin(); // Automatically switch to login after success
+        });
       } else {
-        setMessage('Registration failed. Please try again.');
+        Swal.fire({
+          icon: 'error',
+          title: 'Registration Failed',
+          text: 'Please try again.',
+        });
       }
     } catch (error) {
-      setMessage('Registration failed. Please check your input and try again.');
+      Swal.fire({
+        icon: 'error',
+        title: 'Registration Failed',
+        text: 'Please check your input and try again.',
+      });
     }
   };
 
@@ -60,7 +83,6 @@ const RegisterForm = ({ switchToLogin }) => {
           />
           <input type="submit" className="button" value="Signup" />
         </form>
-        <p>{message}</p>
         <div className="signup">
           <span className="signup">
             Already have an account?{' '}
