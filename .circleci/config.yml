@@ -1,24 +1,8 @@
-version: 2.1
-
 jobs:
-  say-hello:
-    docker:
-      - image: cimg/base:current
-    steps:
-      - checkout
-      - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
-      - persist_to_workspace:
-          root: ~/build
-          paths:
-            - .
-
   sonarqube:
     working_directory: ~/build
     docker:
-      - image: cimg/base:current
-    resource_class: small
+      - image: cimg/base:current # Test with this image to confirm job starts
     steps:
       - attach_workspace:
           at: ~/build
@@ -50,4 +34,6 @@ workflows:
   main_workflow:
     jobs:
       - say-hello
-      - sonarqube
+      - sonarqube:
+          requires:
+            - say-hello
