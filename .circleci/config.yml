@@ -34,7 +34,7 @@ jobs:
           name: "Install findutils (Debian/Ubuntu)"
           command: |
             if command -v apt-get &> /dev/null; then
-              sudo apt-get update && sudo apt-get install -y findutils
+              apt-get update && apt-get install -y findutils
             else
               echo "apt-get not available, skipping."
             fi
@@ -42,17 +42,9 @@ jobs:
           name: "Install findutils (Alpine)"
           command: |
             if command -v apk &> /dev/null; then
-              sudo apk add --no-cache findutils
+              apk add --no-cache findutils
             else
               echo "apk not available, skipping."
-            fi
-      - run:
-          name: "Install findutils (CentOS/Red Hat)"
-          command: |
-            if command -v yum &> /dev/null; then
-              sudo yum install -y findutils
-            else
-              echo "yum not available, skipping."
             fi
       - run:
           name: "Verify find Installation"
