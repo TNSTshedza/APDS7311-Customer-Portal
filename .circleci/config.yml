@@ -23,24 +23,63 @@ jobs:
   sonarqube:
     working_directory: ~/build
     docker:
-        - image: sonarsource/sonar-scanner-cli
+      - image: sonarsource/sonar-scanner-cli
     resource_class: small
     steps:
-      - run: find .
+      - checkout
+      - run:
+          name: "Check Linux Distribution"
+          command: cat /etc/os-release
+      - run:
+          name: "Install findutils (Debian/Ubuntu)"
+          command: |
+            if command -v apt-get &> /dev/null; then
+              apt-get update && apt-get install -y findutils
+            else
+              echo "apt-get not available, skipping."
+            fi
+      - run:
+          name: "Install findutils (Alpine)"
+          command: |
+            if command -v apk &> /dev/null; then
+              apk add --no-cache findutils
+            else
+              echo "apk not available, skipping."
+            fi
+      - run:
+          name: "Install findutils (CentOS/Red Hat)"
+          command: |
+            if command -v yum &> /dev/null; then
+              yum install -y findutils
+            else
+              echo "yum not available, skipping."
+            fi
+      - run:
+          name: "Verify find Installation"
+          command: which find
+      - run:
+          name: "List Files"
+          command: find .
       - attach_workspace:
-            at: ~/workspace
-      - run: |
-            SONAR_BRANCH="${CIRCLE_BRANCH :- master}"
-            echo "Sonar branch value is: "$SONAR_BRANCH
-            echo "Sonar org value is : "$SONAR_ORG
+          at: ~/workspace
+      - run:
+          name: "Run SonarQube Analysis"
+          command: |
+            if [ -z "$SONAR_PROJECT_KEY" ] || [ -z "$SONAR_ORG" ] || [ -z "$SONAR_TOKEN" ]; then
+              echo "Environment variables SONAR_PROJECT_KEY, SONAR_ORG, or SONAR_TOKEN are not set. Exiting."
+              exit 1
+            fi
+            SONAR_BRANCH="${CIRCLE_BRANCH:-main}"
+            echo "Sonar branch value is: $SONAR_BRANCH"
+            echo "Sonar org value is: $SONAR_ORG"
             sonar-scanner \
-            -Dsonar.projectKey="$SONAR_PROJECT_KEY" \
-            -Dsonar.organization="$SONAR_ORG" \
-            -Dsonar.host.url-https://sonarcloud.io \
-            -Dsonar.exclusions="/android/,/ios/" \
-            -Dsonar.login="$SONAR_TOKEN" \
-            -Dsonar.branch.name="$SONAR_BRANCH" \
-            -Dsonar.sources="."
+              -Dsonar.projectKey="$SONAR_PROJECT_KEY" \
+              -Dsonar.organization="$SONAR_ORG" \
+              -Dsonar.host.url="https://sonarcloud.io" \
+              -Dsonar.exclusions="/android/**,/ios/**" \
+              -Dsonar.login="$SONAR_TOKEN" \
+              -Dsonar.branch.name="$SONAR_BRANCH" \
+              -Dsonar.sources="."
             
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/workflows/ & https://circleci.com/docs/configuration-reference/#workflows
