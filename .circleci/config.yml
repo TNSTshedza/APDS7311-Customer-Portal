@@ -44,6 +44,4 @@ workflows:
   main_workflow: # Changed workflow name to match both jobs
     jobs:
       - say-hello
-      - sonarqube:
-          requires:
-            - say-hello
+
