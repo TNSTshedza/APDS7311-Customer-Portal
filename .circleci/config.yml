@@ -50,6 +50,4 @@ workflows:
   main_workflow:
     jobs:
       - say-hello
-      - sonarqube:
-          requires:
-            - say-hello
+      - sonarqube
