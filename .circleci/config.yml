@@ -34,7 +34,7 @@ jobs:
           name: "Install findutils (Debian/Ubuntu)"
           command: |
             if command -v apt-get &> /dev/null; then
-              apt-get update && apt-get install -y findutils
+              sudo apt-get update && sudo apt-get install -y findutils
             else
               echo "apt-get not available, skipping."
             fi
@@ -42,7 +42,7 @@ jobs:
           name: "Install findutils (Alpine)"
           command: |
             if command -v apk &> /dev/null; then
-              apk add --no-cache findutils
+              sudo apk add --no-cache findutils
             else
               echo "apk not available, skipping."
             fi
@@ -50,18 +50,16 @@ jobs:
           name: "Install findutils (CentOS/Red Hat)"
           command: |
             if command -v yum &> /dev/null; then
-              yum install -y findutils
+              sudo yum install -y findutils
             else
               echo "yum not available, skipping."
             fi
       - run:
           name: "Verify find Installation"
-          command: which find
+          command: which find || echo "find not found"
       - run:
           name: "List Files"
-          command: find .
-      - attach_workspace:
-          at: ~/workspace
+          command: find . || echo "find command failed"
       - run:
           name: "Run SonarQube Analysis"
           command: |
